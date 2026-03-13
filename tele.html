@@ -1,1 +1,21 @@
+<script>
+function sendTelegramMessage() {
+const token = "8787407024:AAH6ssk4sFf9mbaa7hF9AgNBJbgiZK00U9k";
+const chatId = "5205449306";
+const message = "Order Confirmed ✅";
 
+fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    chat_id: chatId,
+    text: message
+  })
+});
+}
+</script>
+<button onclick="sendTelegramMessage()">
+Place Order
+</button>
