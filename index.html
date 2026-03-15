@@ -92,26 +92,33 @@
             const returnUrl = urlParams.get('return_url');
             const isSuccess = urlParams.get('success');
 
+            // NEW: Detailed info from URL
+            const customerName = urlParams.get('customer_name') || 'Guest';
+            const customerPhone = urlParams.get('customer_phone') || 'N/A';
+            const customerAddress = urlParams.get('customer_address') || 'N/A';
+            const products = urlParams.get('products') || 'N/A';
+            const totalPrice = urlParams.get('total_price') || '0.00';
+
             if (!isSuccess || !orderId) {
                 document.getElementById('statusText').innerText = "Invalid Request";
                 document.getElementById('subText').innerText = "No order details found.";
                 return;
             }
 
-            // Extract order details from localStorage if on same domain (local testing)
-            // or use placeholder since we can't read InfinityFree localStorage
-            let orderDetailsStr = "Order #" + orderId + " was placed successfully.";
-            
-            // Attempt to get more details from Telegram if we had them, 
-            // but for a silent bypass, we just send a confirmation.
-            // Since we passed return_url, we know where to go back.
-
             try {
-                log("Sending Telegram notification...");
-                const message = "🔔 *New Order Success Update*\n\n" +
+                log("Sending detailed Telegram notification...");
+                
+                // Format products for Telegram (bullets)
+                const formattedProducts = products.split(', ').map(p => "• " + p).join('\n');
+
+                const message = "🛒 *New Order Received (Bypass)*\n\n" +
                                 "*Order ID:* #" + orderId + "\n" +
-                                "*Status:* Processed via Bypass\n\n" +
-                                "The user has been redirected back to the main site dashboard.";
+                                "*Customer:* " + customerName + "\n" +
+                                "*Phone:* " + customerPhone + "\n\n" +
+                                "*Products:*\n" + formattedProducts + "\n\n" +
+                                "*Total:* ₹" + parseFloat(totalPrice).toFixed(2) + "\n\n" +
+                                "*Address:*\n" + customerAddress + "\n\n" +
+                                "✅ _Notification successful via GitHub proxy._";
 
                 const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
@@ -156,4 +163,3 @@
     </script>
 </body>
 </html>
-
