@@ -1,29 +1,48 @@
-@param {Object} orderData - The order details
- */
-async function placeOrder(orderData) {
-    const API_URL = "http://localhost/api/order-api.php"; // Update with your actual URL
+<!-- Order Success Popup Modal -->
+<div id="orderSuccessModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: #fff; padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleIn 0.3s ease;">
+        <i style="color: #3A6B4A; font-size: 60px; margin-bottom: 20px;" class="fas fa-check-circle"></i>
+        <h2 style="margin: 0 0 15px 0; color: #2C2416; font-family: 'Playfair Display', serif;">Order Confirmed!</h2>
+        <p style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: 'Nunito', sans-serif;">
+            Thank you for shopping with LR Frame Factory. We have received your order and will contact you via Telegram/WhatsApp shortly.
+        </p>
+        <button onclick="closeSuccessModal()" style="background: #3A6B4A; color: #fff; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 600; width: 100%;">
+            Continue Shopping
+        </button>
+    </div>
+</div>
 
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData)
-        });
-
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            alert("Order placed successfully!");
-            // Redirect back to home or success page
-            window.location.href = "https://mani8979.github.io/royalframes/index.html?order_placed=true";
-        } else {
-            console.error("Order failed:", result.message);
-            alert("Ordering error: " + result.message);
-        }
-    } catch (error) {
-        console.error("Network error:", error);
-        alert("Could not connect to the order server.");
+<style>
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
     }
-}
+</style>
+
+<script>
+    // Handles closing the modal and cleaning the URL
+    function closeSuccessModal() {
+        document.getElementById('orderSuccessModal').style.display = 'none';
+        
+        // Remove the ?order_placed=true from URL cleanly
+        if (window.history.replaceState) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+        }
+    }
+
+    // Automatically check URL for success triggers
+    window.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('order_placed') && urlParams.get('order_placed') === 'true') {
+            const modal = document.getElementById('orderSuccessModal');
+            // Check if font-awesome is loaded, if not fall back to an emoji inside the circle
+            if (!document.querySelector('link[href*="font-awesome"]')) {
+               modal.querySelector('i').innerHTML = "✓";
+               modal.querySelector('i').style.fontStyle = "normal";
+               modal.querySelector('i').style.fontWeight = "bold";
+            }
+            modal.style.display = 'flex';
+        }
+    });
+</script>
